@@ -284,6 +284,7 @@
             cls.gameManager = gameManager;
             cls.Position = GetBallPosition(GetBallsCount());
             cls.transform.SetParent(this.transform);
+            cls.ClusterIndex = 2;
             cls.ApplyClusterIndex();
             //
             return PushBall(cls);

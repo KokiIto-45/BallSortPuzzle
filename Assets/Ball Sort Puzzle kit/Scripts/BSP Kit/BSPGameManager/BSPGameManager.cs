@@ -5,6 +5,7 @@
     using System.Collections.Generic;
     using UnityEngine;
     using UnityEngine.SceneManagement;
+    using System.IO;
 
     public class BSPGameManager : MonoBehaviour
     {
@@ -13,6 +14,8 @@
         public const string BasketDIR = "Prefabs/BSPbaskets/BSPbasket";
         private bool gameIsOverFlag = false;
         public BSPBallSettings ballSettings = new BSPBallSettings();
+        public TextAsset csvFile;
+        public List<string[]> csvDatas = new List<string[]>();
         [Min(1)]
         public int defaultBasketCapacity = 4;
         public float defaultBallEscapePositionDeltaX = .01f;
@@ -86,6 +89,27 @@
                         DestroyImmediate(anothers[i], true);
                 }
             }
+        }
+        public void Start()
+        {
+            Debug.Log("Start");
+            if (csvFile == null)
+            {
+                csvFile = Resources.Load("testData") as TextAsset;
+                StringReader reader = new StringReader(csvFile.text);
+                while (reader.Peek() != -1) // reader.Peaekが-1になるまで
+                {
+                    string line = reader.ReadLine(); // 一行ずつ読み込み
+                    csvDatas.Add(line.Split(',')); // , 区切りでリストに追加
+                }
+            }
+            Debug.Log(csvDatas[0][1]);
+            for (int i = 0; i < 5; i++)
+            {
+                AddBasket();
+                bSPBaskets[i].InstantiateBall();
+            }
+            Debug.Log(bSPBaskets);
         }
         public void Awake()
         {

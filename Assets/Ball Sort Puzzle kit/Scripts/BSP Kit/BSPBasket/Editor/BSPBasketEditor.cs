@@ -46,6 +46,7 @@ namespace MyApp.MyBSP.Editors
                 new string[] {
                     "Instantiate ball",
                     "Remove ball" ,
+                    "Remove all balls",
                     "Auto Ball Sorting" },
                 2);
             for (int i = 0; i < boolArray.Length; i++)
@@ -60,6 +61,9 @@ namespace MyApp.MyBSP.Editors
                         Target.RemoveBall();
                         break;
                     case 2:
+                        Target.balls_Clean();
+                        break;
+                    case 3:
                         Target.AutoBallSorting();
                         Target.ApplyBallsClusterIndexChange();
                         break;

@@ -12,7 +12,7 @@
         [HideInInspector] public BSPBallState ballState;
         [HideInInspector] public List<Vector3> targets;
         [HideInInspector] public BSPBallUI _bSPBallUI;
-        [HideInInspector] public int ClusterIndex = 0;
+        [HideInInspector] public int ClusterIndex = 1;
         [HideInInspector] public BSPGameManager gameManager;
         [HideInInspector] public BSPBallData ballData = new BSPBallData();
 
