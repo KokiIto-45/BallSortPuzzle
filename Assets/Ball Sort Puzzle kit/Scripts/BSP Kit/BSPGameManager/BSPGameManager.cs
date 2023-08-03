@@ -16,6 +16,7 @@
         public BSPBallSettings ballSettings = new BSPBallSettings();
         public TextAsset csvFile;
         public List<string[]> csvDatas = new List<string[]>();
+        public const int defaultBasketsCount = 5;
         [Min(1)]
         public int defaultBasketCapacity = 4;
         public float defaultBallEscapePositionDeltaX = .01f;
@@ -104,7 +105,7 @@
                 }
             }
             Debug.Log(csvDatas[0][1]);
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < defaultBasketsCount; i++)
             {
                 AddBasket();
                 bSPBaskets[i].InstantiateBall();
@@ -693,6 +694,13 @@
         public void RestartGame()
         {
             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        }
+        public void toNextPuzzle()
+        {
+            for (int i = 0; i < defaultBasketsCount; i++)
+            {
+                RemoveBasket();
+            }
         }
         #endregion
     }
