@@ -273,7 +273,7 @@
         }
         #endregion
         #region add
-        public bool InstantiateBall()
+        public bool InstantiateBall(int index = 1)
         {
             if (GetBallsCount() >= Capacity) return false;
             balls_checkForNulls();
@@ -284,6 +284,7 @@
             cls.gameManager = gameManager;
             cls.Position = GetBallPosition(GetBallsCount());
             cls.transform.SetParent(this.transform);
+            cls.ClusterIndex = index;
             cls.ApplyClusterIndex();
             //
             return PushBall(cls);
