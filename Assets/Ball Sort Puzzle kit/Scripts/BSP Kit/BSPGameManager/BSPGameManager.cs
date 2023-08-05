@@ -6,6 +6,7 @@
     using UnityEngine;
     using UnityEngine.SceneManagement;
     using System.IO;
+    using System;
 
     public class BSPGameManager : MonoBehaviour
     {
@@ -16,6 +17,9 @@
         public BSPBallSettings ballSettings = new BSPBallSettings();
         public TextAsset csvFile;
         public List<string[]> csvDatas = new List<string[]>();
+        public const int defaultBasketsCount = 5;
+        public const int defaultBasketsWithBallsCount = 3; //初期盤面でボールが入っているビンの本数
+        public int currentStageIndex = 0;
         [Min(1)]
         public int defaultBasketCapacity = 4;
         public float defaultBallEscapePositionDeltaX = .01f;
@@ -103,13 +107,7 @@
                     csvDatas.Add(line.Split(',')); // , 区切りでリストに追加
                 }
             }
-            Debug.Log(csvDatas[0][1]);
-            for (int i = 0; i < 5; i++)
-            {
-                AddBasket();
-                bSPBaskets[i].InstantiateBall();
-            }
-            Debug.Log(bSPBaskets);
+            generatePuzzle(currentStageIndex);
         }
         public void Awake()
         {
@@ -450,7 +448,7 @@
             if (bSPBaskets == null) bSPBaskets = new List<BSPBasket>();
             var basketOBJ = Resources.Load(BasketDIR) as GameObject;
             if (basketOBJ == null) return;
-            var obj = Object.Instantiate(basketOBJ);
+            var obj = UnityEngine.Object.Instantiate(basketOBJ);
             obj.transform.SetParent(this.transform);
             var cls = obj.GetComponent<BSPBasket>();
             if (cls == null)
@@ -474,7 +472,7 @@
         {
             if (bSPBaskets == null || bSPBaskets.Count == 0) return;
             int index = bSPBaskets.Count - 1;
-            Object.DestroyImmediate(bSPBaskets[index].gameObject);
+            UnityEngine.Object.DestroyImmediate(bSPBaskets[index].gameObject);
             bSPBaskets.RemoveAt(index);
         }
         public void AutoBallSorting()
@@ -694,6 +692,42 @@
         {
             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
+        #region Manage Stages
+        public void toNextPuzzle()
+        {
+            for (int i = 0; i < defaultBasketsCount; i++)
+            {
+                RemoveBasket();
+            }
+            currentStageIndex++;
+            generatePuzzle(currentStageIndex);
+
+        }
+        public void generatePuzzle(int stageIndex)
+        {
+            for (int i = 0; i < defaultBasketsCount; i++)
+            {
+                AddBasket();
+                if (i > defaultBasketsWithBallsCount - 1)
+                {
+                    continue;
+                }
+                for (int j = 0; j < defaultBasketCapacity; j++)
+                {
+                    int row = i + stageIndex * defaultBasketsWithBallsCount;
+                    if (Int32.TryParse(csvDatas[row][j], out int index))
+                    {
+                        bSPBaskets[i].InstantiateBall(index);
+                    }
+                    else
+                    {
+                        Debug.LogError("csvの読み込みに失敗しました");
+                        return;
+                    }
+                }
+            }
+        }
+        #endregion
         #endregion
     }
 }
