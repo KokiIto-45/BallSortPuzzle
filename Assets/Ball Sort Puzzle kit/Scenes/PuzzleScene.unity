@@ -267,7 +267,6 @@ MonoBehaviour:
   stageCount: 0
   currentStageIndex: 0
   puzzleDataList: []
-  timerText: {fileID: 0}
   defaultBasketCapacity: 4
   defaultBallEscapePositionDeltaX: 0.01
   basketScale: {x: 0.3, y: 0.3, z: 0.3}
@@ -295,6 +294,8 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 1
         m_CallState: 2
+  timerText: {fileID: 1842949607}
+  stepsCountText: {fileID: 1877591268}
   chaosData:
     iteration: 1000
     MaxSteps: 10
@@ -303,10 +304,10 @@ MonoBehaviour:
   targetBasketIndex: 
   _GameState: 0
   gameEventsEnable: 1
-  basketSettingsEnable: 1
-  makeChaosEnable: 0
+  basketSettingsEnable: 0
+  makeChaosEnable: 1
   InformationEnable: 0
-  BallsEnable: 1
+  BallsEnable: 0
   bSPBaskets: []
   serverBasketsIndex: 
 --- !u!4 &444043182

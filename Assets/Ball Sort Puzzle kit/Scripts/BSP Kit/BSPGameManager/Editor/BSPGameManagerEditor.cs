@@ -48,6 +48,8 @@ namespace MyApp.MyBSP.Editors
         {
             serializedObject.Update();
             GameEvents();
+            TimerText();
+            StepsCountText();
             BallParameters();
             BasketParameters();
             makeChaos();
@@ -60,6 +62,18 @@ namespace MyApp.MyBSP.Editors
             if (!EditorTools.Foldout(ref Target.gameEventsEnable, "Game events")) return;
             EditorTools.Box_Open();
             EditorTools.PropertyField(serializedObject, "onGameIsOverEvent", "onGameIsOver");
+            EditorTools.Box_Close();
+        }
+        private void TimerText()
+        {
+            EditorTools.Box_Open();
+            EditorTools.PropertyField(serializedObject, "timerText", "Timer Text");            
+            EditorTools.Box_Close();
+        }
+        public void StepsCountText()
+        {
+            EditorTools.Box_Open();
+            EditorTools.PropertyField(serializedObject, "stepsCountText", "Steps Couont Text");
             EditorTools.Box_Close();
         }
         private void BallParameters()

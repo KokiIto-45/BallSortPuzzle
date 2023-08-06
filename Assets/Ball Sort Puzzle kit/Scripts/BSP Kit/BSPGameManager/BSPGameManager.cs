@@ -23,8 +23,6 @@
         public int stageCount = 0; //総ステージ数
         public int currentStageIndex = 0;
         public List<PuzzleData> puzzleDataList = new List<PuzzleData>();
-
-        [SerializeField] Text timerText = default;
         [Min(1)]
         public int defaultBasketCapacity = 4;
         public float defaultBallEscapePositionDeltaX = .01f;
@@ -49,6 +47,10 @@
         #endregion
         #region game events
         public UnityEvent onGameIsOverEvent;
+        #endregion
+        #region UI
+        public Text timerText;
+        public Text stepsCountText;
         #endregion
         #region chaos
         public ChaosData chaosData;
@@ -639,14 +641,17 @@
         {
             return steps == null ? 0 : steps.Count;
         }
+        // 使われていない
         public void steps_Push(int basket1Index, int basket2Index, int ballCount = 1)
         {
             steps_Push(new StepData(basket1Index, basket2Index, ballCount));
         }
+        // こっちが使われている
         public void steps_Push(StepData step)
         {
             if (steps == null) steps = new List<StepData>();
             steps.Add(step);
+            stepsCountText.text = steps.Count.ToString();
         }
         public StepData steps_Pop()
         {
