@@ -19,6 +19,7 @@
         public List<string[]> csvDatas = new List<string[]>();
         public const int defaultBasketsCount = 5;
         public const int defaultBasketsWithBallsCount = 3; //初期盤面でボールが入っているビンの本数
+        public int stageCount = 0; //総ステージ数
         public int currentStageIndex = 0;
         [Min(1)]
         public int defaultBasketCapacity = 4;
@@ -101,11 +102,15 @@
             {
                 csvFile = Resources.Load("testData") as TextAsset;
                 StringReader reader = new StringReader(csvFile.text);
+                int rowCount = 0;
                 while (reader.Peek() != -1) // reader.Peaekが-1になるまで
                 {
+                    rowCount++;
                     string line = reader.ReadLine(); // 一行ずつ読み込み
                     csvDatas.Add(line.Split(',')); // , 区切りでリストに追加
                 }
+                stageCount = rowCount / defaultBasketsWithBallsCount;
+
             }
             generatePuzzle(currentStageIndex);
         }
@@ -475,6 +480,13 @@
             UnityEngine.Object.DestroyImmediate(bSPBaskets[index].gameObject);
             bSPBaskets.RemoveAt(index);
         }
+        public void RemoveAllBaskets()
+        {
+            for (int i = 0; i < defaultBasketsCount; i++)
+            {
+                RemoveBasket();
+            }
+        }
         public void AutoBallSorting()
         {
             if (bSPBaskets == null) return;
@@ -690,15 +702,18 @@
         #endregion
         public void RestartGame()
         {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            RemoveAllBaskets();
+            generatePuzzle(currentStageIndex);
         }
         #region Manage Stages
         public void toNextPuzzle()
         {
-            for (int i = 0; i < defaultBasketsCount; i++)
+            if (currentStageIndex == stageCount)
             {
-                RemoveBasket();
+                Debug.Log("All Stage Have Ended");
+                return;
             }
+            RemoveAllBaskets();
             currentStageIndex++;
             generatePuzzle(currentStageIndex);
 
