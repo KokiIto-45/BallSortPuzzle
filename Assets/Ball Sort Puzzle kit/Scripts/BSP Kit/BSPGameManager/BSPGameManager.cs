@@ -359,6 +359,29 @@
             return bSPBaskets == null ? 0 : bSPBaskets.Count;
         }
         #region basket hit
+        public bool isSameBallsInBasket(int nodeIndex)
+        {
+            int previousIndex = 0;
+            int ballCount = bSPBaskets[nodeIndex].GetBallsCount();
+            if (ballCount == 0 || ballCount == 1)
+            {
+                return false;
+            }
+            for (int i = 0; i < ballCount; i++)
+            {
+                if (i == 0)
+                {
+                    previousIndex = bSPBaskets[nodeIndex].balls[i].ClusterIndex;
+                    continue;
+                }
+                int currentIndex = bSPBaskets[nodeIndex].balls[i].ClusterIndex;
+                if (previousIndex != currentIndex)
+                {
+                    return false;
+                }
+            }            
+            return true;
+        }
         public void BasketHit(BSPBasket node)
         {
             if (gameIsOverFlag || gameIsLock || node == null) return;
@@ -367,6 +390,15 @@
             {
                 case BSPGameStates.None:
                     {
+                        if (isSameBallsInBasket(nodeIndex))
+                        {
+                            Debug.Log("Same Balls");
+                            return;
+                        }
+                        else
+                        {
+                            Debug.Log("Different Balls");
+                        }
                         //TODO: Peek the top ball
                         if ((lastBasketIndex = nodeIndex) > -1)
                         {
@@ -708,7 +740,7 @@
         #region Manage Stages
         public void toNextPuzzle()
         {
-            if (currentStageIndex == stageCount)
+            if (currentStageIndex == stageCount-1)
             {
                 Debug.Log("All Stage Have Ended");
                 return;
@@ -716,7 +748,6 @@
             RemoveAllBaskets();
             currentStageIndex++;
             generatePuzzle(currentStageIndex);
-
         }
         public void generatePuzzle(int stageIndex)
         {
