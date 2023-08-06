@@ -5,7 +5,13 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/SampleScene.unity
     guid: 2cda990e2423bbf4892e6590ba056729
+  - enabled: 1
+    path: Assets/Ball Sort Puzzle kit/Scenes/TitleScene.unity
+    guid: a676cf6dc2a5141a2993760bfd69b51f
+  - enabled: 1
+    path: Assets/Ball Sort Puzzle kit/Scenes/PuzzleScene.unity
+    guid: f4c0b9625ba7f49fd8f66d1b664d80ff
   m_configObjects: {}
