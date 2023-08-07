@@ -7,6 +7,9 @@
     using UnityEngine.SceneManagement;
     using System.IO;
     using System;
+    using UnityEngine.UI;
+    using System.Linq;
+    using System.Collections;
 
     public class BSPGameManager : MonoBehaviour
     {
@@ -16,11 +19,14 @@
         private bool gameIsOverFlag = false;
         public BSPBallSettings ballSettings = new BSPBallSettings();
         public TextAsset csvFile;
-        public List<string[]> csvDatas = new List<string[]>();
+        public List<string[]> csvData = new List<string[]>();
         public const int defaultBasketsCount = 5;
         public const int defaultBasketsWithBallsCount = 3; //初期盤面でボールが入っているビンの本数
         public int stageCount = 0; //総ステージ数
         public int currentStageIndex = 0;
+        public List<PuzzleData> puzzleDataList = new List<PuzzleData>();
+        public PuzzleData currentPuzzleData;
+        public int timeCount;
         [Min(1)]
         public int defaultBasketCapacity = 4;
         public float defaultBallEscapePositionDeltaX = .01f;
@@ -45,6 +51,10 @@
         #endregion
         #region game events
         public UnityEvent onGameIsOverEvent;
+        #endregion
+        #region UI
+        public Text timerText;
+        public Text stepsCountText;
         #endregion
         #region chaos
         public ChaosData chaosData;
@@ -107,9 +117,28 @@
                 {
                     rowCount++;
                     string line = reader.ReadLine(); // 一行ずつ読み込み
-                    csvDatas.Add(line.Split(',')); // , 区切りでリストに追加
+                    csvData.Add(line.Split(',')); // , 区切りでリストに追加
                 }
                 stageCount = rowCount / defaultBasketsWithBallsCount;
+                
+                for (int i = 0; i < stageCount; i++)
+                {
+                    List<string[]> boardData = new List<string[]>();
+                    for (int j = 0; j < defaultBasketsWithBallsCount; j++)
+                    {
+                        int rowIndex = j + i * defaultBasketsWithBallsCount;
+                        string[] basketData = new string[defaultBasketCapacity];
+                        for (int k = 0; k < defaultBasketCapacity; k++)
+                        {
+                            basketData[k] = csvData[rowIndex][k];
+                        }
+                        boardData.Add(basketData);
+                    }
+                    PuzzleData puzzleData = new PuzzleData(boardData, i);
+                    puzzleDataList.Add(puzzleData);
+                }
+                // パズルリストをシャッフルして順番をランダムにする
+                puzzleDataList = puzzleDataList.OrderBy(a => Guid.NewGuid()).ToList();
 
             }
             generatePuzzle(currentStageIndex);
@@ -619,14 +648,21 @@
         {
             return steps == null ? 0 : steps.Count;
         }
+        // 使われていない
         public void steps_Push(int basket1Index, int basket2Index, int ballCount = 1)
         {
             steps_Push(new StepData(basket1Index, basket2Index, ballCount));
         }
+        // こっちが使われている
         public void steps_Push(StepData step)
         {
             if (steps == null) steps = new List<StepData>();
             steps.Add(step);
+            stepsCountText.text = steps.Count.ToString();
+        }
+        public void steps_clear()
+        {
+            steps.Clear();
         }
         public StepData steps_Pop()
         {
@@ -734,12 +770,15 @@
         #endregion
         public void RestartGame()
         {
+            StopCoroutine("CountUp");
             RemoveAllBaskets();
             generatePuzzle(currentStageIndex);
         }
         #region Manage Stages
         public void toNextPuzzle()
         {
+            StopCoroutine("CountUp");
+            recordToPuzzleData();
             if (currentStageIndex == stageCount-1)
             {
                 Debug.Log("All Stage Have Ended");
@@ -749,8 +788,26 @@
             currentStageIndex++;
             generatePuzzle(currentStageIndex);
         }
+        public void recordToPuzzleData()
+        {
+            PuzzleData currentPuzzleData = puzzleDataList[currentStageIndex];
+            string currentStepCount = stepsCountText.text;
+            if (Int32.TryParse(currentStepCount, out int stepCount)){
+                currentPuzzleData.stepCount = stepCount;
+                Debug.Log("stepCount" + currentPuzzleData.stepCount);
+            } else
+            {
+                Debug.Log("手数の記録に失敗しました");
+            }
+            currentPuzzleData.seconds = timeCount;
+        }
         public void generatePuzzle(int stageIndex)
         {
+            currentPuzzleData = puzzleDataList[stageIndex];
+            stepsCountText.text = "0";
+            timeCount = 0;
+            StartCoroutine("CountUp");
+            steps_clear();
             for (int i = 0; i < defaultBasketsCount; i++)
             {
                 AddBasket();
@@ -760,8 +817,7 @@
                 }
                 for (int j = 0; j < defaultBasketCapacity; j++)
                 {
-                    int row = i + stageIndex * defaultBasketsWithBallsCount;
-                    if (Int32.TryParse(csvDatas[row][j], out int index))
+                    if (Int32.TryParse(currentPuzzleData.boardData[i][j], out int index))
                     {
                         bSPBaskets[i].InstantiateBall(index);
                     }
@@ -772,6 +828,32 @@
                     }
                 }
             }
+        }
+        public string getTimerText(int timeCount)
+        {
+            int minutes = timeCount / 60;
+            int seconds = timeCount % 60;
+            string minutesString = Digit(minutes) == 1 ? "0" + minutes.ToString() : minutes.ToString();
+            string secondsString = Digit(seconds) == 1 ? "0" + seconds.ToString() : seconds.ToString();
+
+            return minutesString + ":" + secondsString;
+
+        }
+        public int Digit(int num)
+        {
+            // Mathf.Log10(0)はNegativeInfinityを返すため、別途処理する。
+            return (num == 0) ? 1 : ((int)Mathf.Log10(num) + 1);
+        }
+        public IEnumerator CountUp()
+        {
+            
+            while(!gameIsOverFlag)
+            {
+                yield return new WaitForSeconds(1);
+                timerText.text = getTimerText(timeCount);
+                timeCount++;
+            }
+
         }
         #endregion
         #endregion
