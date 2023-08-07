@@ -8,6 +8,7 @@
     using System.IO;
     using System;
     using UnityEngine.UI;
+    using System.Linq;
 
     public class BSPGameManager : MonoBehaviour
     {
@@ -23,6 +24,7 @@
         public int stageCount = 0; //総ステージ数
         public int currentStageIndex = 0;
         public List<PuzzleData> puzzleDataList = new List<PuzzleData>();
+        public PuzzleData currentPuzzleData;
         [Min(1)]
         public int defaultBasketCapacity = 4;
         public float defaultBallEscapePositionDeltaX = .01f;
@@ -116,9 +118,10 @@
                     csvData.Add(line.Split(',')); // , 区切りでリストに追加
                 }
                 stageCount = rowCount / defaultBasketsWithBallsCount;
-                List<string[]> boardData = new List<string[]>();
+                
                 for (int i = 0; i < stageCount; i++)
                 {
+                    List<string[]> boardData = new List<string[]>();
                     for (int j = 0; j < defaultBasketsWithBallsCount; j++)
                     {
                         int rowIndex = j + i * defaultBasketsWithBallsCount;
@@ -129,9 +132,11 @@
                         }
                         boardData.Add(basketData);
                     }
-                    PuzzleData puzzleData = new PuzzleData(boardData);
+                    PuzzleData puzzleData = new PuzzleData(boardData, i);
                     puzzleDataList.Add(puzzleData);
                 }
+                // パズルリストをシャッフルして順番をランダムにする
+                puzzleDataList = puzzleDataList.OrderBy(a => Guid.NewGuid()).ToList();
 
             }
             generatePuzzle(currentStageIndex);
@@ -653,6 +658,10 @@
             steps.Add(step);
             stepsCountText.text = steps.Count.ToString();
         }
+        public void steps_clear()
+        {
+            steps.Clear();
+        }
         public StepData steps_Pop()
         {
             if (steps == null || steps.Count == 0) return null;
@@ -765,6 +774,7 @@
         #region Manage Stages
         public void toNextPuzzle()
         {
+            recordToPuzzleData();
             if (currentStageIndex == stageCount-1)
             {
                 Debug.Log("All Stage Have Ended");
@@ -774,9 +784,23 @@
             currentStageIndex++;
             generatePuzzle(currentStageIndex);
         }
+        public void recordToPuzzleData()
+        {
+            PuzzleData currentPuzzleData = puzzleDataList[currentStageIndex];
+            string currentStepCount = stepsCountText.text;
+            if (Int32.TryParse(currentStepCount, out int stepCount)){
+                currentPuzzleData.stepCount = stepCount;
+                Debug.Log("stepCount" + currentPuzzleData.stepCount);
+            } else
+            {
+                Debug.Log("手数の記録に失敗しました");
+            }
+        }
         public void generatePuzzle(int stageIndex)
         {
-            PuzzleData currentPuzzleData = puzzleDataList[stageIndex];
+            currentPuzzleData = puzzleDataList[stageIndex];
+            stepsCountText.text = "0";
+            steps_clear();
             for (int i = 0; i < defaultBasketsCount; i++)
             {
                 AddBasket();

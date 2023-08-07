@@ -6,16 +6,18 @@ namespace MyApp.MyBSP
 
     [System.Serializable]
 
-    public class PuzzleData : MonoBehaviour
+    public class PuzzleData
     {
+        readonly int boardIndex; 
         public int stepCount = 0;
         public int seconds = 0;
         public int restartCount = 0;
         public List<string[]> boardData = new List<string[]>();
 
-        public PuzzleData(List<string[]> boardData)
+        public PuzzleData(List<string[]> boardData, int boardIndex)
         {
             this.boardData = boardData;
+            this.boardIndex = boardIndex;
         }
     }
 }
