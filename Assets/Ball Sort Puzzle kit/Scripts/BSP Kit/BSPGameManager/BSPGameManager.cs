@@ -9,6 +9,7 @@
     using System;
     using UnityEngine.UI;
     using System.Linq;
+    using System.Collections;
 
     public class BSPGameManager : MonoBehaviour
     {
@@ -25,6 +26,7 @@
         public int currentStageIndex = 0;
         public List<PuzzleData> puzzleDataList = new List<PuzzleData>();
         public PuzzleData currentPuzzleData;
+        public int timeCount;
         [Min(1)]
         public int defaultBasketCapacity = 4;
         public float defaultBallEscapePositionDeltaX = .01f;
@@ -768,12 +770,14 @@
         #endregion
         public void RestartGame()
         {
+            StopCoroutine("CountUp");
             RemoveAllBaskets();
             generatePuzzle(currentStageIndex);
         }
         #region Manage Stages
         public void toNextPuzzle()
         {
+            StopCoroutine("CountUp");
             recordToPuzzleData();
             if (currentStageIndex == stageCount-1)
             {
@@ -795,11 +799,14 @@
             {
                 Debug.Log("手数の記録に失敗しました");
             }
+            currentPuzzleData.seconds = timeCount;
         }
         public void generatePuzzle(int stageIndex)
         {
             currentPuzzleData = puzzleDataList[stageIndex];
             stepsCountText.text = "0";
+            timeCount = 0;
+            StartCoroutine("CountUp");
             steps_clear();
             for (int i = 0; i < defaultBasketsCount; i++)
             {
@@ -821,6 +828,32 @@
                     }
                 }
             }
+        }
+        public string getTimerText(int timeCount)
+        {
+            int minutes = timeCount / 60;
+            int seconds = timeCount % 60;
+            string minutesString = Digit(minutes) == 1 ? "0" + minutes.ToString() : minutes.ToString();
+            string secondsString = Digit(seconds) == 1 ? "0" + seconds.ToString() : seconds.ToString();
+
+            return minutesString + ":" + secondsString;
+
+        }
+        public int Digit(int num)
+        {
+            // Mathf.Log10(0)はNegativeInfinityを返すため、別途処理する。
+            return (num == 0) ? 1 : ((int)Mathf.Log10(num) + 1);
+        }
+        public IEnumerator CountUp()
+        {
+            
+            while(!gameIsOverFlag)
+            {
+                yield return new WaitForSeconds(1);
+                timerText.text = getTimerText(timeCount);
+                timeCount++;
+            }
+
         }
         #endregion
         #endregion

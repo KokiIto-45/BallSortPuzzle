@@ -267,6 +267,10 @@ MonoBehaviour:
   stageCount: 0
   currentStageIndex: 0
   puzzleDataList: []
+  currentPuzzleData:
+    stepCount: 0
+    seconds: 0
+    restartCount: 0
   defaultBasketCapacity: 4
   defaultBallEscapePositionDeltaX: 0.01
   basketScale: {x: 0.3, y: 0.3, z: 0.3}
