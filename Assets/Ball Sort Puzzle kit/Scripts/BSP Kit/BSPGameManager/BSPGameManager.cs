@@ -55,6 +55,7 @@
         #region UI
         public Text timerText;
         public Text stepsCountText;
+        public GameObject resultPanel;
         #endregion
         #region chaos
         public ChaosData chaosData;
@@ -149,7 +150,7 @@
         }
         public void Update()
         {
-            if (gameIsOverFlag) return;
+            //if (gameIsOverFlag) return;
             checkGameState();
             if (gameIsLock) return;
             if (checkGameIsOverFlag)
@@ -413,7 +414,7 @@
         }
         public void BasketHit(BSPBasket node)
         {
-            if (gameIsOverFlag || gameIsLock || node == null) return;
+            if (gameIsLock || node == null) return;
             int nodeIndex = bSPBasketsNodeIndex(node);
             switch (GameState)
             {
@@ -775,10 +776,22 @@
             generatePuzzle(currentStageIndex);
         }
         #region Manage Stages
-        public void toNextPuzzle()
+        public void onStageOver()
         {
             StopCoroutine("CountUp");
             recordToPuzzleData();
+            resultPanel.SetActive(true);
+        }
+        public void showResultPanel()
+        {
+            resultPanel.SetActive(true);
+        }
+        public void closeResultPanel()
+        {
+            resultPanel.SetActive(false);
+        }
+        public void toNextPuzzle()
+        {
             if (currentStageIndex == stageCount-1)
             {
                 Debug.Log("All Stage Have Ended");
@@ -803,6 +816,7 @@
         }
         public void generatePuzzle(int stageIndex)
         {
+            resultPanel.SetActive(false);
             currentPuzzleData = puzzleDataList[stageIndex];
             stepsCountText.text = "0";
             timeCount = 0;
@@ -823,7 +837,7 @@
                     }
                     else
                     {
-                        Debug.LogError("csvの読み込みに失敗しました");
+                        Debug.LogError("パズルデータの読み込みに失敗しました");
                         return;
                     }
                 }
@@ -847,7 +861,7 @@
         public IEnumerator CountUp()
         {
             
-            while(!gameIsOverFlag)
+            while(true)
             {
                 yield return new WaitForSeconds(1);
                 timerText.text = getTimerText(timeCount);
