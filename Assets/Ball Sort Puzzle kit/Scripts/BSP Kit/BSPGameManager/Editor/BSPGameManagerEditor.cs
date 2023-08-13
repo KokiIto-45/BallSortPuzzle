@@ -50,6 +50,7 @@ namespace MyApp.MyBSP.Editors
             GameEvents();
             TimerText();
             StepsCountText();
+            ResultPanel();
             BallParameters();
             BasketParameters();
             makeChaos();
@@ -74,6 +75,12 @@ namespace MyApp.MyBSP.Editors
         {
             EditorTools.Box_Open();
             EditorTools.PropertyField(serializedObject, "stepsCountText", "Steps Couont Text");
+            EditorTools.Box_Close();
+        }
+        private void ResultPanel()
+        {
+            EditorTools.Box_Open();
+            EditorTools.PropertyField(serializedObject, "resultPanel", "Result Panel");
             EditorTools.Box_Close();
         }
         private void BallParameters()
