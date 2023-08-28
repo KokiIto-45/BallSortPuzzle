@@ -348,10 +348,16 @@ MonoBehaviour:
   currentStageIndex: 0
   puzzleDataList: []
   currentPuzzleData:
-    stepCount: 0
-    seconds: 0
+    lastStepCount: 0
+    totalStepCount: 0
+    lastMoveBallsCount: 0
+    totalMoveBallsCount: 0
+    lastSeconds: 0
+    totalSeconds: 0
     restartCount: 0
+    isRetired: 0
   timeCount: 0
+  currentMoveBallsCount: 0
   defaultBasketCapacity: 4
   defaultBallEscapePositionDeltaX: 0.01
   basketScale: {x: 0.3, y: 0.3, z: 0.3}
@@ -1174,7 +1180,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1516023703
 RectTransform:
   m_ObjectHideFlags: 0

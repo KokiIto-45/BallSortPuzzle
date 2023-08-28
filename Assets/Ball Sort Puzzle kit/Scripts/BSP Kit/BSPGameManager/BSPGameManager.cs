@@ -27,6 +27,7 @@
         public List<PuzzleData> puzzleDataList = new List<PuzzleData>();
         public PuzzleData currentPuzzleData;
         public int timeCount;
+        public int currentMoveBallsCount = 0;
         [Min(1)]
         public int defaultBasketCapacity = 4;
         public float defaultBallEscapePositionDeltaX = .01f;
@@ -659,6 +660,7 @@
         {
             if (steps == null) steps = new List<StepData>();
             steps.Add(step);
+            currentMoveBallsCount += step.BallCount;
             stepsCountText.text = steps.Count.ToString();
         }
         public void steps_clear()
@@ -773,6 +775,7 @@
         {
             StopCoroutine("CountUp");
             RemoveAllBaskets();
+            updateTotalCounts();
             generatePuzzle(currentStageIndex);
         }
         #region Manage Stages
@@ -780,6 +783,7 @@
         {
             StopCoroutine("CountUp");
             recordToPuzzleData();
+            updateTotalCounts();
             resultPanel.SetActive(true);
         }
         public void showResultPanel()
@@ -794,31 +798,46 @@
         {
             if (currentStageIndex == stageCount-1)
             {
+                // 全てのパズルが終了したあとの処理はここに書ける
                 Debug.Log("All Stage Have Ended");
                 return;
             }
             RemoveAllBaskets();
+            //TODO: パズルがクリアされないままスキップされた場合の処理を追記する
+            // 　　　ここを通った時点でパズルが完成しているかどうかを判定し、完成していなかった場合に
+            //      isRetiredのフラグをtrueにする(+他の数値も記録する)
+            Debug.Log(currentPuzzleData.totalMoveBallsCount + "totalMoveBallsCount");
+            Debug.Log(currentPuzzleData.totalStepCount + "totalStepCount");
+            Debug.Log(currentPuzzleData.totalSeconds + "totalSeconds");
             currentStageIndex++;
             generatePuzzle(currentStageIndex);
+        }
+        public void updateTotalCounts()
+        {
+            PuzzleData currentPuzzleData = puzzleDataList[currentStageIndex];
+            currentPuzzleData.totalMoveBallsCount += currentMoveBallsCount;
+            currentPuzzleData.totalStepCount += steps.Count;
+            currentPuzzleData.totalSeconds += timeCount;
         }
         public void recordToPuzzleData()
         {
             PuzzleData currentPuzzleData = puzzleDataList[currentStageIndex];
             string currentStepCount = stepsCountText.text;
             if (Int32.TryParse(currentStepCount, out int stepCount)){
-                currentPuzzleData.stepCount = stepCount;
-                Debug.Log("stepCount" + currentPuzzleData.stepCount);
+                currentPuzzleData.lastStepCount = stepCount;
+                Debug.Log("stepCount" + currentPuzzleData.lastStepCount);
             } else
             {
                 Debug.Log("手数の記録に失敗しました");
             }
-            currentPuzzleData.seconds = timeCount;
+            currentPuzzleData.lastSeconds = timeCount;
         }
         public void generatePuzzle(int stageIndex)
         {
             resultPanel.SetActive(false);
             currentPuzzleData = puzzleDataList[stageIndex];
             stepsCountText.text = "0";
+            currentMoveBallsCount = 0;
             timeCount = 0;
             StartCoroutine("CountUp");
             steps_clear();
