@@ -10,10 +10,14 @@
     using UnityEngine.UI;
     using System.Linq;
     using System.Collections;
+    using System.Text;
 
     public class BSPGameManager : MonoBehaviour
     {
         #region variable
+        private StreamWriter sw;
+        private string path;
+        private string fileName = "testData";
         public const string BallDIR = "Prefabs/BSPballs/BSPball";
         public const string BasketDIR = "Prefabs/BSPbaskets/BSPbasket";
         private bool gameIsOverFlag = false;
@@ -110,9 +114,14 @@
         public void Start()
         {
             Debug.Log("Start");
+            path = Application.dataPath + "/" + fileName;
             if (csvFile == null)
             {
+#if UNITY_EDITOR
                 csvFile = Resources.Load("testData") as TextAsset;
+#elif UNITY_STANDALONE_OSX
+                
+#endif
                 StringReader reader = new StringReader(csvFile.text);
                 int rowCount = 0;
                 while (reader.Peek() != -1) // reader.Peaekが-1になるまで
@@ -136,7 +145,7 @@
                         }
                         boardData.Add(basketData);
                     }
-                    PuzzleData puzzleData = new PuzzleData(boardData, i);
+                    PuzzleData puzzleData = new PuzzleData(boardData, i+1);
                     puzzleDataList.Add(puzzleData);
                 }
                 // パズルリストをシャッフルして順番をランダムにする
@@ -164,16 +173,16 @@
                 }
             }
         }
-        #endregion
-        #region functions
-        #region serverBaskets
+#endregion
+#region functions
+#region serverBaskets
         private void sserverBasketsIndex_add(int index)
         {
             if (serverBasketsIndex == null) serverBasketsIndex = new List<int>();
             serverBasketsIndex.Add(index);
         }
-        #endregion
-        #region targetBasketIndex
+#endregion
+#region targetBasketIndex
         private void targetBasketIndex_Add(int index)
         {
             if (targetBasketIndex == null) targetBasketIndex = new List<int>();
@@ -189,8 +198,8 @@
             if (targetBasketIndex == null) return;
             targetBasketIndex.Clear();
         }
-        #endregion
-        #region Game State
+#endregion
+#region Game State
         public BSPGameStates GameState
         {
             get { return _GameState; }
@@ -203,8 +212,8 @@
                 }
             }
         }
-        #endregion
-        #region Game is over conditions
+#endregion
+#region Game is over conditions
         public bool GameIsOver()
         {
             if (bSPBaskets == null || bSPBaskets.Count == 0)
@@ -245,8 +254,8 @@
                     return false;
             }
         }
-        #endregion
-        #region logics
+#endregion
+#region logics
         private void checkGameState()
         {
             switch (GameState)
@@ -329,9 +338,9 @@
             }
             return false;
         }
-        #endregion
-        #region bSPBaskets
-        #region Refresh
+#endregion
+#region bSPBaskets
+#region Refresh
         public void BasketsScaleRefresh()
         {
             if (bSPBaskets == null) return;
@@ -384,12 +393,12 @@
                 bSPBaskets[i]._bSPBasketUI.setGlassPositionDeltaX(glassPositionDeltaX);
             }
         }
-        #endregion
+#endregion
         public int bspBasketsCount()
         {
             return bSPBaskets == null ? 0 : bSPBaskets.Count;
         }
-        #region basket hit
+#region basket hit
         public bool isSameBallsInBasket(int nodeIndex)
         {
             int previousIndex = 0;
@@ -500,7 +509,7 @@
             BasketNodeIndex_Reset();
             GameState = BSPGameStates.OnFallenBall;
         }
-        #endregion
+#endregion
         private int bSPBasketsNodeIndex(BSPBasket node)
         {
             if (node == null || bSPBaskets == null) return -1;
@@ -571,8 +580,8 @@
                 if (bSPBaskets[i] == null) { bSPBaskets.RemoveAt(i--); }
             }
         }
-        #endregion
-        #region bSpBasketLine
+#endregion
+#region bSpBasketLine
         public void bSpBasketLineSorting()
         {
             if (bSPBaskets == null || bSPBaskets.Count < 1) return;
@@ -584,8 +593,8 @@
                 bSPBaskets[i].Position = position;
             }
         }
-        #endregion
-        #region move balls
+#endregion
+#region move balls
 
         private bool moveBallFromTo(int basket1Index, int basket2Index, int ballsCount, bool pushStep = false)
         {
@@ -644,8 +653,8 @@
             //BasketNodeIndex_Reset();
             return true;
         }
-        #endregion
-        #region steps
+#endregion
+#region steps
         public int steps_Count()
         {
             return steps == null ? 0 : steps.Count;
@@ -727,8 +736,8 @@
             }
             return true;
         }
-        #endregion
-        #region last basket Node Index
+#endregion
+#region last basket Node Index
         public int lastBasketIndex
         {
             get { return _lastBasketIndex; }
@@ -738,8 +747,8 @@
         {
             lastBasketIndex = -1;
         }
-        #endregion
-        #region chaos
+#endregion
+#region chaos
         public bool MakeChaos()
         {
             ChaosMaker cMaker = new ChaosMaker(chaosData);
@@ -747,8 +756,8 @@
             var nodes = cMaker.MakeChaos();
             return doSteps_Immediate(ref nodes);
         }
-        #endregion
-        #region BSP Insert New Basket
+#endregion
+#region BSP Insert New Basket
         public bool isInsertNewBasket(int count = 1)
         {
             return count > 0
@@ -770,7 +779,7 @@
             AddBasket();
             return true;
         }
-        #endregion
+#endregion
         public void RestartGame()
         {
             StopCoroutine("CountUp");
@@ -778,7 +787,7 @@
             updateTotalCounts();
             generatePuzzle(currentStageIndex);
         }
-        #region Manage Stages
+#region Manage Stages
         public void onStageOver()
         {
             StopCoroutine("CountUp");
@@ -798,8 +807,24 @@
         {
             if (currentStageIndex == stageCount-1)
             {
-                // 全てのパズルが終了したあとの処理はここに書ける
+                //TODO: 全てのパズルが終了したあとの処理はここに書ける
                 Debug.Log("All Stage Have Ended");
+                puzzleDataList.Sort((a,b) => a.boardIndex - b.boardIndex);
+                string outputFileName = "SaveData.csv";
+                string outputPath = Application.dataPath + "/" +outputFileName;
+                sw = new StreamWriter(outputPath, true, Encoding.GetEncoding("Shift_JIS"));
+                string[] s1 = { "id", "stepCount", "time" };
+                string s2 = string.Join(",", s1);
+                sw.WriteLine(s2);
+                for (int i=0; i < puzzleDataList.Count; i++) {
+                    string id = Convert.ToString(puzzleDataList[i].boardIndex);
+                    string stepCount = Convert.ToString(puzzleDataList[i].lastStepCount);
+                    string time = Convert.ToString(puzzleDataList[i].lastSeconds);
+                    string[] s3 = {id, stepCount, time};
+                    string s4 = string.Join(",", s3);
+                    sw.WriteLine(s4);
+                }
+                sw.Close();
                 return;
             }
             RemoveAllBaskets();
@@ -888,7 +913,7 @@
             }
 
         }
-        #endregion
-        #endregion
+#endregion
+#endregion
     }
 }

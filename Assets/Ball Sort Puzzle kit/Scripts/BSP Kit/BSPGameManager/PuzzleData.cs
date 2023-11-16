@@ -8,7 +8,7 @@ namespace MyApp.MyBSP
 
     public class PuzzleData
     {
-        readonly int boardIndex;
+        public int boardIndex;
         // リスタートでリセットされる、最後に表示されていた手数
         public int lastStepCount = 0;
         // リスタートでリセットされない、総じて掛かった手数
